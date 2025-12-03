@@ -16,3 +16,7 @@ build-backend = "setuptools.build_meta"
 
 [project.scripts]
 gads-dashboard = "gads.main_dashboard:run_dashboard"
+
+[tool.setuptools.packages.find]
+where = ["."]  # Search in current directory
+include = ["gads*"] # Only include packages starting with "gads"
