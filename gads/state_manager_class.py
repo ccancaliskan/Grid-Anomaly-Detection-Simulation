@@ -1,3 +1,4 @@
+import math
 import streamlit as st
 import pandas as pd
 import pandapower as pp
@@ -5,34 +6,61 @@ import numpy as np # Import numpy for net.bus index
 import random
 from gads.campaign_manager import generate_adaptive_campaign
 from gads.config import NUM_SIMULATION_STEPS
+import networkx as nx
 
 class StateManager:
+
+    GRID_MAPPING = {
+        "IEEE 33 Bus": pp.networks.case33bw,
+        "IEEE 14 Bus": pp.networks.case14,
+        "IEEE 30 Bus": pp.networks.case30,
+        "IEEE 118 Bus": pp.networks.case118,
+    }
+
     def __init__(self):
         pass
 
-    def initialize_session_state(self, force=False):
+    def initialize_session_state(self, force=False, grid_type="IEEE 33 Bus"):
         """Initializes all session state variables if they don't exist or if forced."""
         if not force and "initialized" in st.session_state:
             return
-            
+
         st.session_state.initialized = True
         st.session_state.is_running = False
         st.session_state.time_step = 0
+        st.session_state.grid_type = grid_type
         st.session_state.data = pd.DataFrame(columns=['time_step', 'bus_id', 'vm_pu', 'is_attacked'])
         
-        # Moved create_ieee_33_bus_system logic directly here
-        net = pp.networks.case33bw()
-        num_buses = len(net.bus)
-        coords = []
-        for i in range(num_buses):
-            coords.append((i % 6, i // 6))
-        bus_geodata = pd.DataFrame(coords, columns=['x', 'y'], index=net.bus.index)
-        net.bus_geodata = bus_geodata
+        # Load the selected grid
+        net = self.GRID_MAPPING[grid_type]()
+
+        # Generate geo-data if it doesn't exist
+        if 'bus_geodata' not in net or net.bus_geodata.empty:
+            mg = pp.topology.create_nxgraph(net) # Create a networkx graph
+            # Check if graph is empty or has disconnected components, spring_layout might struggle
+            if mg.number_of_nodes() == 0:
+                # Fallback to simple grid if no nodes
+                num_buses = len(net.bus)
+                side_length = math.ceil(math.sqrt(num_buses))
+                coords_dict = {i: (i % side_length, i // side_length) for i in net.bus.index}
+            else:
+                # Use spring layout for better visualization of topology
+                coords_dict = nx.spring_layout(mg, dim=2, seed=42) # Use a seed for reproducibility
+
+            coords_df = pd.DataFrame.from_dict(coords_dict, orient='index', columns=['x', 'y'])
+            # Ensure index matches bus indices
+            net.bus_geodata = coords_df.loc[net.bus.index]
+
 
         st.session_state.net = net
         st.session_state.original_loads = net.load.p_mw.copy()
-        if net.res_bus.empty:
-            pp.runpp(net)
+        try:
+            if net.res_bus.empty:
+                pp.runpp(net)
+        except Exception as e:
+            # Some grids might not converge with default settings
+            st.warning(f"Initial power flow for {grid_type} failed: {e}")
+
 
         # UI and Attack State
         st.session_state.attack_type = "None"
@@ -92,7 +120,24 @@ class StateManager:
         """Callback to toggle the simulation running state."""
         st.session_state.is_running = not st.session_state.is_running
 
+    def export_data_to_csv(self):
+        """Exports the collected simulation data to a CSV file."""
+        data = self.get_data()
+        if data.empty:
+            st.toast("No data to export.", icon="⚠️")
+            return
+            
+        file_path = "simulation_ground_truth.csv"
+        try:
+            data.to_csv(file_path, index=False)
+            st.toast(f"Data exported to {file_path}", icon="✅")
+        except Exception as e:
+            st.toast(f"Error exporting data: {e}", icon="❌")
+
     # --- Getter methods for state variables ---
+    def get_grid_type(self):
+        return st.session_state.grid_type
+
     def get_is_running(self):
         return st.session_state.is_running
 
@@ -152,10 +197,10 @@ class StateManager:
 
     def get_current_attack_targets(self):
         return st.session_state.current_attack_targets
-    
+
     def get_num_attack_slider(self):
         return st.session_state.num_attack_slider
-    
+
     def get_is_converged(self):
         return st.session_state.is_converged
 
@@ -178,6 +223,9 @@ class StateManager:
         return st.session_state.generated_adaptive_campaign
 
     # --- Setter methods for state variables ---
+    def set_grid_type(self, value):
+        st.session_state.grid_type = value
+
     def set_is_running(self, value):
         st.session_state.is_running = value
 

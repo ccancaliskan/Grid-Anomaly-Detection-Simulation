@@ -17,6 +17,23 @@ def on_halt_setting_change():
     else:
         st.toast("Halt on non-convergence: Disabled")
 
+def on_grid_change():
+    state_manager = st.session_state.state_manager
+    new_grid = st.session_state.grid_selector
+    # Re-initialize with the new grid type
+    state_manager.initialize_session_state(force=True, grid_type=new_grid)
+
+
+def draw_grid_selection(state_manager):
+    st.sidebar.selectbox(
+        "Grid Type",
+        options=list(state_manager.GRID_MAPPING.keys()),
+        key="grid_selector",
+        on_change=on_grid_change,
+        index=list(state_manager.GRID_MAPPING.keys()).index(state_manager.get_grid_type())
+    )
+
+
 def draw_start_reset_buttons(state_manager):
     col_start, col_reset = st.sidebar.columns(2)
     with col_start:
@@ -24,10 +41,12 @@ def draw_start_reset_buttons(state_manager):
         st.button(button_icon, key="start_pause", on_click=state_manager.toggle_running, use_container_width=True)
     with col_reset:
         if st.button("🔄", key="reset", use_container_width=True):
+            # When resetting, keep the current grid type
+            current_grid = state_manager.get_grid_type()
             custom_campaign = state_manager.get_custom_campaign()
-            state_manager.initialize_session_state(force=True)
+            state_manager.initialize_session_state(force=True, grid_type=current_grid)
             state_manager.set_custom_campaign(custom_campaign)
-            st.rerun()
+
 
 def draw_bus_selection(state_manager):
     st.sidebar.write("Select Bus to Monitor:")
@@ -170,7 +189,7 @@ def draw_custom_campaign_builder(state_manager):
                     custom_campaign = state_manager.get_custom_campaign()
                     custom_campaign.append(new_stage)
                     state_manager.set_custom_campaign(custom_campaign)
-                    st.rerun()
+                    
 
         if state_manager.get_custom_campaign():
             st.sidebar.write("Campaign Stages:")
@@ -184,10 +203,15 @@ def draw_custom_campaign_builder(state_manager):
                     custom_campaign = state_manager.get_custom_campaign()
                     custom_campaign.pop(i)
                     state_manager.set_custom_campaign(custom_campaign)
-                    st.rerun()
+                    
+
+def draw_export_button(state_manager):
+    if st.sidebar.button("Export Ground Truth"):
+        state_manager.export_data_to_csv()
 
 def draw_sidebar_controls(state_manager):
     draw_start_reset_buttons(state_manager)
+    draw_grid_selection(state_manager)
     draw_bus_selection(state_manager)
     draw_simulation_speed_slider(state_manager)
     draw_attack_type_selection(state_manager)
@@ -201,6 +225,8 @@ def draw_sidebar_controls(state_manager):
         help="If checked, the simulation will pause if a power flow solution does not converge.",
         on_change=on_halt_setting_change
     )
+    
+    draw_export_button(state_manager)
     st.sidebar.caption("Grid Anomaly Detection Simulation")
 
 
@@ -211,6 +237,7 @@ def run_dashboard():
     # --- State Management ---
     if "state_manager" not in st.session_state:
         st.session_state.state_manager = StateManager()
+        # Initialize with default grid
         st.session_state.state_manager.initialize_session_state()
 
     state_manager = st.session_state.state_manager
