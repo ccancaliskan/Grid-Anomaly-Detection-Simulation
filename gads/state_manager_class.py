@@ -168,68 +168,148 @@ class StateManager:
                 def get_halt_on_non_convergence(self):
                     return st.session_state.halt_on_non_convergence
             
-                # --- Setter methods for state variables ---
-                def set_is_running(self, value):
-                    st.session_state.is_running = value        
-            def set_time_step(self, value):
-                st.session_state.time_step = value
-        
-            def set_data(self, value):
-                st.session_state.data = value
-        
-            def set_net(self, value):
-                st.session_state.net = value
-        
-            def set_original_loads(self, value):
-                st.session_state.original_loads = value
-        
-            def set_attack_type(self, value):
-                st.session_state.attack_type = value
-        
-            def set_liar_intensity(self, value):
-                st.session_state.liar_intensity = value
-        
-            def set_overload_intensity(self, value):
-                st.session_state.overload_intensity = value
-        
-            def set_flicker_intensity(self, value):
-                st.session_state.flicker_intensity = value
-        
-            def set_stealth_intensity(self, value):
-                st.session_state.stealth_intensity = value
-        
-            def set_ramp_rate(self, value):
-                st.session_state.ramp_rate = value
-        
-            def set_ramp_level(self, value):
-                st.session_state.ramp_level = value
-        
-            def set_custom_campaign(self, value):
-                st.session_state.custom_campaign = value
-        
-            def set_error_message(self, value):
-                st.session_state.error_message = value
-        
-            def set_selected_bus(self, value):
-                st.session_state.selected_bus = value
-        
-            def set_bus_slider(self, value):
-                st.session_state.bus_slider = value
-        
-            def set_bus_num_input(self, value):
-                st.session_state.bus_num_input = value
-        
-            def set_sim_speed(self, value):
-                st.session_state.sim_speed = value
-        
-            def set_num_attacked_buses(self, value):
-                st.session_state.num_attacked_buses = value
-        
-            def set_current_attack_targets(self, value):
-                st.session_state.current_attack_targets = value
-        
-            def set_num_attack_slider(self, value):
-                st.session_state.num_attack_slider = value
-        
-            def set_is_converged(self, value):
-                st.session_state.is_converged = value
+                    def get_halt_on_non_convergence(self):
+            
+                        return st.session_state.halt_on_non_convergence
+            
+                
+            
+                    # --- Setter methods for state variables ---
+            
+                    def set_is_running(self, value):
+            
+                        st.session_state.is_running = value
+            
+                
+            
+                    def set_time_step(self, value):
+            
+                        st.session_state.time_step = value
+            
+                
+            
+                    def set_data(self, value):
+            
+                        st.session_state.data = value
+            
+                
+            
+                    def set_net(self, value):
+            
+                        st.session_state.net = value
+            
+                
+            
+                    def set_original_loads(self, value):
+            
+                        st.session_state.original_loads = value
+            
+                
+            
+                    def set_attack_type(self, value):
+            
+                        st.session_state.attack_type = value
+            
+                
+            
+                    def set_liar_intensity(self, value):
+            
+                        st.session_state.liar_intensity = value
+            
+                
+            
+                    def set_overload_intensity(self, value):
+            
+                        st.session_state.overload_intensity = value
+            
+                
+            
+                    def set_flicker_intensity(self, value):
+            
+                        st.session_state.flicker_intensity = value
+            
+                
+            
+                    def set_stealth_intensity(self, value):
+            
+                        st.session_state.stealth_intensity = value
+            
+                
+            
+                    def set_ramp_rate(self, value):
+            
+                        st.session_state.ramp_rate = value
+            
+                
+            
+                    def set_ramp_level(self, value):
+            
+                        st.session_state.ramp_level = value
+            
+                
+            
+                    def set_custom_campaign(self, value):
+            
+                        st.session_state.custom_campaign = value
+            
+                
+            
+                    def set_error_message(self, value):
+            
+                        st.session_state.error_message = value
+            
+                
+            
+                    def set_selected_bus(self, value):
+            
+                        st.session_state.selected_bus = value
+            
+                
+            
+                    def set_bus_slider(self, value):
+            
+                        st.session_state.bus_slider = value
+            
+                
+            
+                    def set_bus_num_input(self, value):
+            
+                        st.session_state.bus_num_input = value
+            
+                
+            
+                    def set_sim_speed(self, value):
+            
+                        st.session_state.sim_speed = value
+            
+                
+            
+                    def set_num_attacked_buses(self, value):
+            
+                        st.session_state.num_attacked_buses = value
+            
+                
+            
+                    def set_current_attack_targets(self, value):
+            
+                        st.session_state.current_attack_targets = value
+            
+                
+            
+                    def set_num_attack_slider(self, value):
+            
+                        st.session_state.num_attack_slider = value
+            
+                
+            
+                    def set_is_converged(self, value):
+            
+                        st.session_state.is_converged = value
+            
+                
+            
+                    def set_halt_on_non_convergence(self, value):
+            
+                        st.session_state.halt_on_non_convergence = value
+            
+                

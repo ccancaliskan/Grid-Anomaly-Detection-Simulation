@@ -66,6 +66,19 @@ def run_dashboard():
             value=state_manager.get_halt_on_non_convergence(),
             help="If checked, the simulation will pause if a power flow solution does not converge."
         ))
+        
+        # Display convergence status
+        if state_manager.get_is_converged():
+            st.sidebar.success("Power Flow Converged")
+        else:
+            st.sidebar.error("Power Flow Not Converged!")
+
+        # Option to halt on non-convergence
+        state_manager.set_halt_on_non_convergence(st.sidebar.checkbox(
+            "Halt on non-convergence",
+            value=state_manager.get_halt_on_non_convergence(),
+            help="If checked, the simulation will pause if a power flow solution does not converge."
+        ))
 
     def draw_attack_type_selection():
         st.sidebar.selectbox(
