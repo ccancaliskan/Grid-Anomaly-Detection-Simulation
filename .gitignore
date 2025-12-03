@@ -6,7 +6,7 @@ __pycache__/
 docs/
 # C extensions
 *.so
-
+grid-importer/Aachen.osm.pbf 
 # Distribution / packaging
 .Python
 build/
