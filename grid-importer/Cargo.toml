@@ -1,0 +1,12 @@
+[package]
+name = "grid-importer"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+osmpbf = "0.3.8"
+home = "=0.5.5"
+
+[[bin]]
+name = "grid-importer"
+path = "src/main.rs"
