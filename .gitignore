@@ -6,7 +6,15 @@ __pycache__/
 docs/
 # C extensions
 *.so
+
 grid-importer/Aachen.osm.pbf 
+grid-importer/custom_grid
+grid-importer/custom_grid/
+grid-importer/Berlin.osm.pbf
+grid-importer/test.osm.pbf
+grid-importer/custom_grid/osm_all_nodes.csv
+grid-importer/custom_grid/
+grid-importer/custom_grid/
 # Distribution / packaging
 .Python
 build/
