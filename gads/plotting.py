@@ -1,6 +1,19 @@
 import pandas as pd
 import plotly.graph_objects as go
 
+def _create_line_trace(net, from_bus_idx, to_bus_idx, color, width, name):
+    """Helper function to create a single line trace for the network plot."""
+    from_bus = net.bus_geodata.loc[from_bus_idx]
+    to_bus = net.bus_geodata.loc[to_bus_idx]
+    return go.Scatter(
+        x=[from_bus.x, to_bus.x],
+        y=[from_bus.y, to_bus.y],
+        mode='lines',
+        line=dict(width=width, color=color),
+        hoverinfo='none',
+        name=name
+    )
+
 def create_interactive_network_plot(net, selected_bus=None):
     """
     Generates a more customizable interactive plot of the network.
@@ -19,29 +32,13 @@ def create_interactive_network_plot(net, selected_bus=None):
     line_traces = []
     # Add lines
     for i, line in net.line.iterrows():
-        from_bus = net.bus_geodata.loc[line.from_bus]
-        to_bus = net.bus_geodata.loc[line.to_bus]
-        line_traces.append(go.Scatter(
-            x=[from_bus.x, to_bus.x],
-            y=[from_bus.y, to_bus.y],
-            mode='lines',
-            line=dict(width=2, color='grey'),
-            hoverinfo='none',
-            name=f'line_{i}'
-        ))
+        trace = _create_line_trace(net, line.from_bus, line.to_bus, 'grey', 2, f'line_{i}')
+        line_traces.append(trace)
     
     # Add transformers
     for i, trafo in net.trafo.iterrows():
-        from_bus = net.bus_geodata.loc[trafo.hv_bus]
-        to_bus = net.bus_geodata.loc[trafo.lv_bus]
-        line_traces.append(go.Scatter(
-            x=[from_bus.x, to_bus.x],
-            y=[from_bus.y, to_bus.y],
-            mode='lines',
-            line=dict(width=2, color='orange'), # Use a different color for transformers
-            hoverinfo='none',
-            name=f'trafo_{i}'
-        ))
+        trace = _create_line_trace(net, trafo.hv_bus, trafo.lv_bus, 'orange', 2, f'trafo_{i}')
+        line_traces.append(trace)
 
     # Bus trace
     bus_trace = go.Scatter(

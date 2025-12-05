@@ -10,105 +10,105 @@ from gads.config import (
 
 
 # --- Attack Logic Functions ---
-def determine_attack_status(state: SimulationState):
-    """
-    Determines the current attack type, targeted buses/lines, and if an attack is active.
-    """
+def _determine_adaptive_campaign_status(state: SimulationState):
+    """Determines attack status for an Adaptive Campaign."""
     t = state.time_step
-    is_attacked = 0
-    attacked_buses = []
-    attacked_lines = []
-    current_attack_type = state.attack_type
+    campaign = state.generated_adaptive_campaign
+    for stage in campaign:
+        if stage["range"].start <= t < stage["range"].stop:
+            is_attacked = 1
+            current_attack_type = stage["type"]
+            attacked_lines = stage.get("lines", [])
+            attacked_buses = stage.get("buses", [])
 
-    # Reset attack-specific state at the beginning of the step
-    if current_attack_type != "Ramp Attack":
-        state.ramp_level = 1.0 # Reset ramp level if not a ramp attack
-
-
-    if current_attack_type == "Adaptive Campaign":
-        campaign = state.generated_adaptive_campaign
-        for stage in campaign:
-            if stage["range"].start <= t < stage["range"].stop:
-                is_attacked = 1
-                current_attack_type = stage["type"]
-
-                if current_attack_type == "Line Outage":
-                    attacked_lines = stage.get("lines", [])
-                else:
-                    attacked_buses = stage.get("buses", [])
-
-                if stage['intensity'] != 0:
-                    if current_attack_type == "Liar Attack": state.liar_intensity = stage["intensity"]
-                    elif current_attack_type == "Overload Attack": state.overload_intensity = stage["intensity"]
-                    elif current_attack_type == "Flicker Attack": state.flicker_intensity = stage["intensity"]
-                    elif current_attack_type == "Stealth Attack": state.stealth_intensity = stage["intensity"]
-                
-                if current_attack_type == "Data Replay" and t == stage["range"].start:
-                    if state.voltage_history:
-                         state.data_replay_buffer = state.voltage_history[-1]
-
-                break
-    elif current_attack_type == "Custom Campaign":
-        for stage in state.custom_campaign:
-            if stage["range"].start <= t < stage["range"].stop:
-                is_attacked = 1
-                current_attack_type = stage["type"]
-
-                if current_attack_type == "Line Outage":
-                    attacked_lines = stage.get("lines", []) # Allow specifying lines in custom campaign
-                else:
-                    attacked_buses = stage.get("buses", [])
-
-
+            if stage['intensity'] != 0:
                 if current_attack_type == "Liar Attack": state.liar_intensity = stage["intensity"]
                 elif current_attack_type == "Overload Attack": state.overload_intensity = stage["intensity"]
                 elif current_attack_type == "Flicker Attack": state.flicker_intensity = stage["intensity"]
                 elif current_attack_type == "Stealth Attack": state.stealth_intensity = stage["intensity"]
-                elif current_attack_type == "Ramp Attack": state.ramp_rate = stage["intensity"]
-                elif current_attack_type == "Data Replay":
-                    if t == stage["range"].start:
-                        if state.voltage_history:
-                             state.data_replay_buffer = state.voltage_history[-1]
-
-                break
-    elif current_attack_type != "None": # Manual attack
-        is_attacked = 1
-        if current_attack_type == "Line Outage":
-             if not state.current_attack_targets:
-                 num_to_attack = 1 # attack one line
-                 attackable_lines = list(state.net.line.index)
-                 if attackable_lines:
-                     state.current_attack_targets = random.sample(attackable_lines, num_to_attack)
-             attacked_lines = state.current_attack_targets
-
-        else: # Other manual attacks
-            new_num = state.num_attack_slider
-            current_targets = state.current_attack_targets
-            current_num = len(current_targets)
-
-            if new_num > current_num:
-                # We need to add more buses
-                num_to_add = new_num - current_num
-                # Find buses that are not already targeted and are not the slack bus
-                all_buses = state.net.bus.index
-                attackable_buses = [b for b in all_buses if b != 0 and b not in current_targets]
-                
-                # Ensure we don't try to sample more than what's available
-                num_to_add = min(num_to_add, len(attackable_buses))
-                
-                if num_to_add > 0:
-                    new_targets = random.sample(attackable_buses, num_to_add)
-                    current_targets.extend(new_targets)
-                    state.current_attack_targets = current_targets
-
-            elif new_num < current_num:
-                # We need to remove buses from the end
-                state.current_attack_targets = current_targets[:new_num]
             
-            state.num_attacked_buses = len(state.current_attack_targets)
-            attacked_buses = state.current_attack_targets
+            if current_attack_type == "Data Replay" and t == stage["range"].start:
+                if state.voltage_history:
+                     state.data_replay_buffer = state.voltage_history[-1]
 
+            return is_attacked, current_attack_type, attacked_buses, attacked_lines
+    return 0, state.attack_type, [], []
+
+def _determine_custom_campaign_status(state: SimulationState):
+    """Determines attack status for a Custom Campaign."""
+    t = state.time_step
+    for stage in state.custom_campaign:
+        if stage["range"].start <= t < stage["range"].stop:
+            is_attacked = 1
+            current_attack_type = stage["type"]
+            attacked_lines = stage.get("lines", [])
+            attacked_buses = stage.get("buses", [])
+
+            if current_attack_type == "Liar Attack": state.liar_intensity = stage["intensity"]
+            elif current_attack_type == "Overload Attack": state.overload_intensity = stage["intensity"]
+            elif current_attack_type == "Flicker Attack": state.flicker_intensity = stage["intensity"]
+            elif current_attack_type == "Stealth Attack": state.stealth_intensity = stage["intensity"]
+            elif current_attack_type == "Ramp Attack": state.ramp_rate = stage["intensity"]
+            elif current_attack_type == "Data Replay":
+                if t == stage["range"].start:
+                    if state.voltage_history:
+                         state.data_replay_buffer = state.voltage_history[-1]
+
+            return is_attacked, current_attack_type, attacked_buses, attacked_lines
+    return 0, state.attack_type, [], []
+
+def _determine_manual_attack_status(state: SimulationState):
+    """Determines attack status for a manual attack."""
+    is_attacked = 1
+    current_attack_type = state.attack_type
+    attacked_buses = []
+    attacked_lines = []
+
+    if current_attack_type == "Line Outage":
+        if not state.current_attack_targets:
+            num_to_attack = 1
+            attackable_lines = list(state.net.line.index)
+            if attackable_lines:
+                state.current_attack_targets = random.sample(attackable_lines, num_to_attack)
+        attacked_lines = state.current_attack_targets
+    else:
+        new_num = state.num_attack_slider
+        current_targets = state.current_attack_targets
+        current_num = len(current_targets)
+
+        if new_num > current_num:
+            num_to_add = new_num - current_num
+            all_buses = state.net.bus.index
+            attackable_buses = [b for b in all_buses if b != 0 and b not in current_targets]
+            num_to_add = min(num_to_add, len(attackable_buses))
+            if num_to_add > 0:
+                new_targets = random.sample(attackable_buses, num_to_add)
+                current_targets.extend(new_targets)
+                state.current_attack_targets = current_targets
+        elif new_num < current_num:
+            state.current_attack_targets = current_targets[:new_num]
+        
+        state.num_attacked_buses = len(state.current_attack_targets)
+        attacked_buses = state.current_attack_targets
+    
     return is_attacked, current_attack_type, attacked_buses, attacked_lines
+
+def determine_attack_status(state: SimulationState):
+    """
+    Determines the current attack type, targeted buses/lines, and if an attack is active.
+    """
+    # Reset ramp level if not a ramp attack
+    if state.attack_type != "Ramp Attack":
+        state.ramp_level = 1.0
+
+    if state.attack_type == "Adaptive Campaign":
+        return _determine_adaptive_campaign_status(state)
+    elif state.attack_type == "Custom Campaign":
+        return _determine_custom_campaign_status(state)
+    elif state.attack_type != "None":
+        return _determine_manual_attack_status(state)
+    
+    return 0, state.attack_type, [], []
 
 def apply_physical_attacks(state: SimulationState, net, attack_type, attacked_buses, attacked_lines, t):
     """Applies attacks that physically alter the grid's state before power flow calculation."""

@@ -110,6 +110,7 @@ class SimulationState:
         self.voltage_history = []
         self.adaptive_campaign_intensity = 1
         self.generated_adaptive_campaign = []
+        self.generated_adaptive_campaign_intensity = 0
 
     def _ensure_geodata(self):
         if ('bus_geodata' in self.net and not self.net.bus_geodata.empty) or len(self.net.bus) == 0:
@@ -157,34 +158,21 @@ class SimulationState:
 #... (rest of the file until _load_osm_grid)
 
 # ... (inside SimulationState class)
-    def _load_osm_grid(self, output_folder) -> pp.pandapowerNet:
-        net = pp.create_empty_network()
-        self._ensure_std_types(net)
-        net.bus_geodata = pd.DataFrame(columns=['x', 'y'])
-        
-        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
-        output_dir = os.path.join(project_root, "grid-importer", output_folder)
-        nodes_csv_path = os.path.join(output_dir, "osm_power_nodes.csv")
-        ways_csv_path = os.path.join(output_dir, "osm_power_ways.csv")
-        all_nodes_csv_path = os.path.join(output_dir, "osm_all_nodes.csv")
-
-        if not (os.path.exists(nodes_csv_path) and os.path.exists(ways_csv_path) and os.path.exists(all_nodes_csv_path)):
-            self.error_message = f"CSV files not found in {output_dir}."
-            return net
-
-        nodes_df = pd.read_csv(nodes_csv_path).fillna('')
-        all_nodes_df = pd.read_csv(all_nodes_csv_path).fillna('')
-        
+    def _create_osm_buses(self, net, nodes_df):
+        """Creates pandapower buses from OSM power node data."""
         bus_nodes = nodes_df[nodes_df['is_substation'] | nodes_df['is_transformer_node']].copy()
         if bus_nodes.empty:
             self.error_message = "No substations or transformers found in OSM data to create buses."
-            return net
+            return None, None
 
         bus_id_map = {row['id']: pp.create_bus(net, name=row['name'] or str(row['id']), vn_kv=_parse_voltage(row['voltage'])) for _, row in bus_nodes.iterrows()}
         for osm_id, pp_id in bus_id_map.items():
             row = bus_nodes[bus_nodes['id'] == osm_id].iloc[0]
             net.bus_geodata.loc[pp_id] = [row['lon'], row['lat']]
-        
+        return bus_id_map, bus_nodes
+
+    def _create_osm_lines(self, net, bus_nodes, bus_id_map):
+        """Creates pandapower lines using a Minimum Spanning Tree approach."""
         # Create a complete graph of all buses
         G = nx.Graph()
         bus_nodes_list = list(bus_nodes.iterrows())
@@ -229,6 +217,8 @@ class SimulationState:
             pp.create_line_from_parameters(net, from_bus=bus_id_map[u], to_bus=bus_id_map[v], length_km=max(length, 0.01), 
                                             r_ohm_per_km=r_ohm_per_km, x_ohm_per_km=x_ohm_per_km, c_nf_per_km=c_nf_per_km, max_i_ka=max_i_ka)
 
+    def _setup_osm_grid_defaults(self, net):
+        """Creates a slack bus and default loads for the OSM grid."""
         if len(net.bus) > 0:
             hv_buses = net.bus[net.bus.vn_kv >= 110]
             slack_bus = hv_buses.index[0] if not hv_buses.empty else net.bus.index[0]
@@ -237,6 +227,29 @@ class SimulationState:
             for bus_id in net.bus.index:
                 if bus_id != slack_bus:
                     pp.create_load(net, bus=bus_id, p_mw=0.001, q_mvar=0.0005)
+
+    def _load_osm_grid(self, output_folder) -> pp.pandapowerNet:
+        net = pp.create_empty_network()
+        self._ensure_std_types(net)
+        net.bus_geodata = pd.DataFrame(columns=['x', 'y'])
+        
+        project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
+        output_dir = os.path.join(project_root, "grid-importer", output_folder)
+        nodes_csv_path = os.path.join(output_dir, "osm_power_nodes.csv")
+        all_nodes_csv_path = os.path.join(output_dir, "osm_all_nodes.csv")
+
+        if not (os.path.exists(nodes_csv_path) and os.path.exists(all_nodes_csv_path)):
+            self.error_message = f"CSV files not found in {output_dir}."
+            return net
+
+        nodes_df = pd.read_csv(nodes_csv_path).fillna('')
+        
+        bus_id_map, bus_nodes = self._create_osm_buses(net, nodes_df)
+        if bus_id_map is None:
+            return net
+        
+        self._create_osm_lines(net, bus_nodes, bus_id_map)
+        self._setup_osm_grid_defaults(net)
         
         return net
 
