@@ -132,7 +132,6 @@ class SimulationState:
 
     def run_importer(self, pbf_path, output_folder_name):
         project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), os.pardir))
-        # ... (rest of the function is the same)
         grid_importer_dir = os.path.join(project_root, "grid-importer")
         output_dir = os.path.join(grid_importer_dir, output_folder_name)
         rust_exe_path = os.path.join(grid_importer_dir, "target", "debug", "grid-importer")
@@ -154,10 +153,7 @@ class SimulationState:
         except Exception as e:
             return False, f"Error deleting grid data: {e}"
 
-    
-#... (rest of the file until _load_osm_grid)
 
-# ... (inside SimulationState class)
     def _create_osm_buses(self, net, nodes_df):
         """Creates pandapower buses from OSM power node data."""
         bus_nodes = nodes_df[nodes_df['is_substation'] | nodes_df['is_transformer_node']].copy()

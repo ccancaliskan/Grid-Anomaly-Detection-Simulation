@@ -3,7 +3,7 @@ use grid_importer::extract_grid_data;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
-    if args.len() < 3 { // Now expects two arguments: pbf path and output dir
+    if args.len() < 3 { // expects two arguments: pbf path and output dir
         eprintln!("Usage: {} <path_to_pbf_file> <output_directory>", args[0]);
         std::process::exit(1);
     }

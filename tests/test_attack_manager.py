@@ -74,7 +74,7 @@ def test_determine_attack_status_manual_attack():
     assert attacked_lines == []
 
 
-# --- Tests for apply_physical_attacks ---
+#  Tests for apply_physical_attacks 
 def test_apply_physical_attacks_overload():
     """Tests applying an Overload Attack."""
     state = MockSimulationStateForAttacks()
@@ -151,7 +151,7 @@ def test_apply_physical_attacks_line_outage():
     # Assert that the attacked line is taken out of service
     assert net_after_attack.line.loc[attacked_lines[0], 'in_service'] == False
 
-# --- Tests for apply_data_attacks ---
+# Tests for apply_data_attacks 
 def test_apply_data_attacks_liar():
     """Tests applying a Liar Attack (data)."""
     state = MockSimulationStateForAttacks()

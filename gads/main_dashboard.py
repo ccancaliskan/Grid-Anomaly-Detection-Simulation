@@ -13,7 +13,7 @@ from gads.config import ATTACK_TYPES, ATTACK_DESCRIPTIONS, NUM_SIMULATION_STEPS
 def _draw_simulation_controls(state: SimulationState):
     st.sidebar.title("")
     col_start, col_reset = st.sidebar.columns(2)
-    if col_start.button("Start" if not state.is_running else "⏸️ Pause", use_container_width=True):
+    if col_start.button("Start" if not state.is_running else "Pause", use_container_width=True):
         state.is_running = not state.is_running
         st.rerun()
 
@@ -217,7 +217,7 @@ def run_dashboard():
             state.generate_and_store_campaign()
             state.generated_adaptive_campaign_intensity = state.adaptive_campaign_intensity
 
-    # --- UI and Simulation ---
+    #  UI and Simulation 
     draw_sidebar(state)
 
     if state.error_message: st.error(state.error_message)
@@ -239,7 +239,8 @@ def run_dashboard():
     with col1:
         st.plotly_chart(create_interactive_network_plot(state.net, state.selected_bus), use_container_width=True)
     with col2:
-        st.subheader(f"Voltage at Bus {state.selected_bus}")
+        st.markdown(f'''
+                    Voltage at **Bus {state.selected_bus}**''')
         if not state.data.empty:
             bus_data = state.data[state.data['bus_id'] == state.selected_bus]
             if not bus_data.empty:

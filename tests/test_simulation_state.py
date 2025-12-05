@@ -111,7 +111,7 @@ def test_run_importer_failure(mock_subprocess_run, mock_exists):
     """
     Tests run_importer for a failed import.
     """
-    import subprocess # Import subprocess for CalledProcessError
+    import subprocess # CalledProcessError
     mock_subprocess_run.side_effect = subprocess.CalledProcessError(1, cmd="mock_cmd", stderr="Error during import")
 
     state = SimulationState()

@@ -1,4 +1,4 @@
-# --- Attack Definitions ---
+# Attack Definitions 
 ATTACK_BUS_DEFINITIONS = {
     "Liar Attack": [10],
     "Overload Attack": [15, 16, 17, 18, 19],
@@ -23,7 +23,7 @@ ATTACK_DESCRIPTIONS = {
     "Custom Campaign": "Build your own multi-stage attack scenario by combining different attacks, targets, and timelines."
 }
 
-# --- Simulation Parameters ---
+# Simulation Parameters 
 NUM_SIMULATION_STEPS = 96
 NOISE_STD_DEV = 0.005
 LOAD_SCALE_FACTOR = 0.3 # For sinusoidal load profile

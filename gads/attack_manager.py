@@ -9,7 +9,7 @@ from gads.config import (
 )
 
 
-# --- Attack Logic Functions ---
+#  Attack Logic Functions 
 def _determine_adaptive_campaign_status(state: SimulationState):
     """Determines attack status for an Adaptive Campaign."""
     t = state.time_step

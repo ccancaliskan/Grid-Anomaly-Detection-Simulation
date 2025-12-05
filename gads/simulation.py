@@ -1,6 +1,6 @@
 import numpy as np
 import pandas as pd
-import pandapower as pp # Keep pandapower for runpp
+import pandapower as pp 
 from gads.config import NUM_SIMULATION_STEPS, NOISE_STD_DEV, LOAD_SCALE_FACTOR
 
 def run_time_series_simulation(net, num_steps=NUM_SIMULATION_STEPS, noise_std_dev=NOISE_STD_DEV):

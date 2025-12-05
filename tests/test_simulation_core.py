@@ -21,7 +21,7 @@ class MockSimulationState(SimulationState):
         super().__init__()
         self.net = create_mock_net()
         # The original_loads are not initialized in the SimulationState constructor,
-        # so we do it here for the test.
+        # so it is here for the test.
         self.original_loads = self.net.load.p_mw.copy()
 
 def test_run_simulation_step():
