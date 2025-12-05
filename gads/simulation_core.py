@@ -49,7 +49,10 @@ def _store_results(state: SimulationState, measured_vm_pu, is_attacked):
         'vm_pu': measured_vm_pu,
         'is_attacked': [is_attacked] * len(measured_vm_pu)
     })
-    state.data = pd.concat([state.data, new_data], ignore_index=True)
+    if state.data.empty:
+        state.data = new_data
+    else:
+        state.data = pd.concat([state.data, new_data], ignore_index=True)
     state.voltage_history.append(measured_vm_pu.copy())
 
 def _advance_time_and_check_halt(state: SimulationState):

@@ -255,6 +255,7 @@ class SimulationState:
 
     def generate_and_store_campaign(self):
         self.generated_adaptive_campaign = generate_adaptive_campaign(self.adaptive_campaign_intensity, self.net, NUM_SIMULATION_STEPS)
+        self.generated_adaptive_campaign_intensity = self.adaptive_campaign_intensity
 
     def export_data_to_csv(self):
         file_path = "simulation_ground_truth.csv"
