@@ -1,15 +1,19 @@
-# Attack Definitions 
-ATTACK_BUS_DEFINITIONS = {
-    "Liar Attack": [10],
-    "Overload Attack": [15, 16, 17, 18, 19],
-    "Flicker Attack": [25],
-    "Stealth Attack": [5, 12, 20],
-    "Ramp Attack": [28, 29, 30, 31, 32],
-    "Line Outage": [], # This will target a line, not a bus
-    "Data Replay": [22]
-}
+# Attack Definitions
+# NOTE: ATTACK_BUS_DEFINITIONS was removed — it was never read anywhere in the codebase.
+# Targets are chosen dynamically in attack_manager.py and campaign_manager.py.
 
-ATTACK_TYPES = ["None", "Liar Attack", "Overload Attack", "Flicker Attack", "Stealth Attack", "Ramp Attack", "Line Outage", "Data Replay", "Adaptive Campaign", "Custom Campaign"]
+ATTACK_TYPES = [
+    "None",
+    "Liar Attack",
+    "Overload Attack",
+    "Flicker Attack",
+    "Stealth Attack",
+    "Ramp Attack",
+    "Line Outage",
+    "Data Replay",
+    "Adaptive Campaign",
+    "Custom Campaign",
+]
 
 ATTACK_DESCRIPTIONS = {
     "Liar Attack": "A data-only attack where a sensor is compromised to send false high or low voltage readings.",
@@ -20,10 +24,10 @@ ATTACK_DESCRIPTIONS = {
     "Line Outage": "A physical attack that trips a transmission line, potentially splitting the grid or causing cascading failures.",
     "Data Replay": "A data attack that records legitimate sensor data and replays it later, masking the true state of the grid.",
     "Adaptive Campaign": "An algorithmic attack that automatically switches between different attack types and intensities to maximize disruption.",
-    "Custom Campaign": "Build your own multi-stage attack scenario by combining different attacks, targets, and timelines."
+    "Custom Campaign": "Build your own multi-stage attack scenario by combining different attacks, targets, and timelines.",
 }
 
-# Simulation Parameters 
+# Simulation Parameters
 NUM_SIMULATION_STEPS = 96
 NOISE_STD_DEV = 0.005
-LOAD_SCALE_FACTOR = 0.3 # For sinusoidal load profile
+LOAD_SCALE_FACTOR = 0.3  # For sinusoidal load profile
