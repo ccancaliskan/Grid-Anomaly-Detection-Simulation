@@ -1,0 +1,25 @@
+[project]
+# steamlit might be looking for project toml 
+name = "grid-anomaly-detection-simulation"
+version = "0.1.0"
+description = "A Streamlit application for simulating grid anomalies and detection."
+dependencies = [
+    "streamlit",
+    "pandas",
+    "numpy",
+    "pandapower",
+    "plotly",
+    "networkx",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project.scripts]
+gads-dashboard = "gads.main_dashboard:run_dashboard"
+
+[tool.setuptools.packages.find]
+where = ["."]  # Search in current directory
+include = ["gads*"] # Only include packages starting with "gads"
+
