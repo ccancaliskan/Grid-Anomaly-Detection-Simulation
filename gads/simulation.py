@@ -8,7 +8,7 @@ import numpy as np
 import pandas as pd
 import pandapower as pp
 
-from gads.config import NUM_SIMULATION_STEPS, NOISE_STD_DEV, LOAD_SCALE_FACTOR
+from .config import NUM_SIMULATION_STEPS, NOISE_STD_DEV, LOAD_SCALE_FACTOR
 
 
 def run_time_series_simulation(

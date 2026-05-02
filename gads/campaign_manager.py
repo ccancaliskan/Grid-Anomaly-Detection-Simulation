@@ -1,5 +1,5 @@
 import random
-from gads.config import NUM_SIMULATION_STEPS
+from .config import NUM_SIMULATION_STEPS
 
 
 def _get_random_attack_time_range(intensity: int, total_steps: int) -> range:

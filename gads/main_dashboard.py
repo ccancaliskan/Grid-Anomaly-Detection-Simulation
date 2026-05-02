@@ -4,11 +4,11 @@ import time
 import pandas as pd
 import streamlit as st
 
-from gads.simulation_state import SimulationState
-from gads.simulation_core import run_simulation_step
-from gads.plotting import create_interactive_network_plot
-from gads.attack_manager import determine_attack_status
-from gads.config import ATTACK_TYPES, ATTACK_DESCRIPTIONS, NUM_SIMULATION_STEPS
+from .simulation_state import SimulationState
+from .simulation_core import run_simulation_step
+from .plotting import create_interactive_network_plot
+from .attack_manager import determine_attack_status
+from .config import ATTACK_TYPES, ATTACK_DESCRIPTIONS, NUM_SIMULATION_STEPS
 
 
 # ---------------------------------------------------------------------------

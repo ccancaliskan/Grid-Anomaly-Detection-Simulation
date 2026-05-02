@@ -3,8 +3,8 @@ import random
 import numpy as np
 import pandapower as pp
 
-from gads.simulation_state import SimulationState
-from gads.config import ATTACK_TYPES
+from .simulation_state import SimulationState
+from .config import ATTACK_TYPES
 
 
 # ---------------------------------------------------------------------------

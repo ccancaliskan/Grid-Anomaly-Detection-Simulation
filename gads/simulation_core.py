@@ -2,9 +2,9 @@ import numpy as np
 import pandas as pd
 import pandapower as pp
 
-from gads.simulation_state import SimulationState
-from gads.attack_manager import determine_attack_status, apply_physical_attacks, apply_data_attacks
-from gads.config import NUM_SIMULATION_STEPS, NOISE_STD_DEV, LOAD_SCALE_FACTOR
+from .simulation_state import SimulationState
+from .attack_manager import determine_attack_status, apply_physical_attacks, apply_data_attacks
+from .config import NUM_SIMULATION_STEPS, NOISE_STD_DEV, LOAD_SCALE_FACTOR
 
 
 def _apply_loads_and_attacks(state: SimulationState) -> tuple[int, str, list, list]:
